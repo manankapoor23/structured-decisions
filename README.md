@@ -1,24 +1,32 @@
-# Typed Decision Skill for Claude Code
+# Give Claude Structured Decisions
 
-A Claude Code Skill that turns open-ended model responses into typed, auditable decisions that software can act on.
+Claude writes prose. Your code needs a decision it can act on: one label from a fixed set, an explicit confidence, and an honest signal when the answer is not there.
 
-The skill asks the model for a decision object instead of prose. A dependency-free validator checks its shape, and a policy gate decides whether that decision is allowed to trigger an action.
+This gives Claude that contract. Ask a question, get a decision object. A dependency-free validator checks its shape, and a policy gate decides whether the decision is allowed to trigger an action.
 
 ```text
 question -> typed decision -> schema validation -> policy gate -> automation or human review
 ```
 
-The model proposes. Your application decides.
+Claude proposes. Your code decides.
+
+## What you get
+
+- **A label, not a paragraph.** One value from the set you allow, and nothing outside it.
+- **Confidence you can threshold on.** A number, with an honest caveat about what it does and does not mean.
+- **A real answer for "not enough information."** Abstention is a first-class outcome, not a hedge buried in prose.
+- **Evidence you can audit.** Each observation tagged as observed, inferred, or missing.
+- **A gate you control.** Thresholds and consequence limits live in your code, where the model cannot reach them.
 
 ## Why
 
 Language models are optimized to produce text for people. Production systems usually need something narrower: a stable label, an explicit uncertainty signal, a path for "not enough information", and a gate that keeps a low-confidence answer from reaching a consequential action.
 
-This skill provides the contract and the gate. It does not perform the action.
+You get the contract and the gate. Your code still performs the action.
 
 ## Install
 
-### Recommended: install as a plugin
+### Plugin (recommended)
 
 Two commands inside Claude Code:
 
@@ -33,7 +41,7 @@ Claude then reaches for the skill on its own whenever a task calls for a typed d
 /plugin update typed-decision@manan-skills
 ```
 
-### Alternative: copy the skill
+### Copy the skill instead
 
 If you would rather not add a marketplace:
 
