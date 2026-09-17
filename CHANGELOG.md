@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4 - 2026-09-17
+
+- Added a quick start at the top: two install commands, one prompt, and the shape of the answer, so
+  the project can be evaluated in a few seconds without reading further.
+- Removed the "Why" section, which restated the opening paragraph in different words.
+
 ## 0.1.3 - 2026-09-17
 
 - Fixed every documented command. They said `python`, which does not exist on macOS or on many Linux

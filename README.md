@@ -12,6 +12,29 @@ Claude proposes. Your code decides.
 
 > **An experiment.** TypeSafe's Jev and other System One models answer a question with a typed value and a probability instead of prose. This skill asks how much of that *interface* a Claude Code skill can offer on its own — a fixed answer space, explicit uncertainty, no narration, nothing for your code to parse out of a paragraph — using a prompt contract, a schema, and a policy gate. It is not that kind of model, and [the comparison below](#how-this-compares-to-a-system-one-model) says where it differs.
 
+## Quick start
+
+```text
+/plugin marketplace add manankapoor23/typed-decision
+/plugin install typed-decision@manan-skills
+```
+
+Then ask for a decision:
+
+```text
+/typed-decision:decide
+Route this issue to one of: authentication_configuration, database, frontend,
+infrastructure, review.
+Issue: Login works locally but returns HTTP 401 in production.
+```
+
+```json
+{"decision": "authentication_configuration", "confidence": 0.86, "needs_review": false,
+ "abstained": false, "evidence": [...], "reason": "...", "missing_information": []}
+```
+
+That is the whole idea. [Usage](#usage) shows the full response and how to ask several questions at once.
+
 ## What you get
 
 - **A label, not a paragraph.** One value from the set you allow, and nothing outside it.
@@ -20,12 +43,6 @@ Claude proposes. Your code decides.
 - **Evidence you can audit.** Each observation tagged as observed, inferred, or missing.
 - **Several judgments in one answer.** Ask every question you might need about the same input; your code picks the ones it uses.
 - **A gate you control.** Thresholds and consequence limits live in your code, where the model cannot reach them.
-
-## Why
-
-Language models are optimized to produce text for people. Production systems usually need something narrower: a stable label, an explicit uncertainty signal, a path for "not enough information", and a gate that keeps a low-confidence answer from reaching a consequential action.
-
-You get the contract and the gate. Your code still performs the action.
 
 ## Install
 
