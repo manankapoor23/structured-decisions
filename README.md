@@ -10,6 +10,8 @@ question -> typed decision -> schema validation -> policy gate -> automation or 
 
 Claude proposes. Your code decides.
 
+> **An experiment.** TypeSafe's Jev and other System One models answer a question with a typed value and a probability instead of prose. This skill asks how much of that *interface* a Claude Code skill can offer on its own — a fixed answer space, explicit uncertainty, no narration, nothing for your code to parse out of a paragraph — using a prompt contract, a schema, and a policy gate. It is not that kind of model, and [the comparison below](#how-this-compares-to-a-system-one-model) says where it differs.
+
 ## What you get
 
 - **A label, not a paragraph.** One value from the set you allow, and nothing outside it.
@@ -252,13 +254,26 @@ Keep these layers separate. Collapsing the gate into the prompt gives the model 
 - Extraction that needs an explicit uncertainty path
 - Approval workflows where the action is gated separately
 
-## When to use a purpose-built decision model instead
+## How this compares to a System One model
 
-This skill is for the case where an LLM is the only model you have. It gets you a stable contract, an abstention path, and a gate.
+System One models, such as TypeSafe's Jev, are purpose-built for typed decisions. This skill borrows the interface, not the machinery. The differences are worth knowing before you pick one:
 
-Purpose-built decision models take a different approach: they separate the content being evaluated from the questions asked about it, answer several independent questions in one call, and return a probability distribution over a fixed answer space rather than a self-reported number. TypeSafe's Jev is one such model. If you need calibrated probabilities, many judgments per request, or tight latency and cost control, evaluate a dedicated model or an evaluation pipeline instead of this skill.
+| | System One model | This skill |
+| --- | --- | --- |
+| What answers | a model trained for typed decisions, behind its own API | whichever model your Claude Code session is already running |
+| The answer | a typed value from a fixed answer space | one label from the set you allow |
+| Uncertainty | a probability distribution over the answer space, with confidence derived from its shape | one number the model reports about itself |
+| Calibration | trained against outcomes | unmeasured until you measure it, with `calibrate.py` |
+| Narration | none by design | `reason` and `evidence` are required fields |
+| Answer types | several shapes, including ordered levels and yes/no probabilities | a single label per judgment |
+| Many questions | independent questions evaluated together against one state | several judgments in one response |
+| Gating | your code | your code, with `gate.py` |
 
-This project is independent and not affiliated with, endorsed by, or derived from any decision model vendor.
+So: use a purpose-built decision model when you need calibrated probabilities, a probability distribution rather than a single answer, or tight control over latency, cost, and determinism. Use this when you are already working in Claude Code and want the contract, the abstention path, and the gate without adding a dependency.
+
+The required `reason` and `evidence` fields are a deliberate departure. A model that returns a distribution does not need to explain itself, because the distribution *is* the uncertainty. A language model reporting a single number does need to, so the contract makes it show its work and keeps that work auditable.
+
+This project is independent. It is not affiliated with, endorsed by, sponsored by, or derived from TypeSafe or any other decision model vendor, and it makes no claim about how its accuracy, calibration, latency, or cost compares to theirs. Jev and System One are referred to here only to describe what this skill is and is not.
 
 ## Repository layout
 

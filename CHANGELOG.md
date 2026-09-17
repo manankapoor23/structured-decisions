@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.1 - 2026-09-17
+
+- Say plainly what this is: an experiment in offering the interface of a typed decision model from
+  inside Claude Code. Added a section comparing it to a System One model across answer shape,
+  uncertainty, calibration, and narration, and explaining why `reason` and `evidence` are required
+  here when a model that returns a distribution needs neither.
+- No change to the decision contract, the validator, or the gate.
+
 ## 0.1.0 - 2026-09-17
 
 - Initial release.
