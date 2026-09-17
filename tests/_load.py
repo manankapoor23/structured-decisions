@@ -3,7 +3,7 @@ import importlib.util
 import sys
 from pathlib import Path
 
-SCRIPTS = Path(__file__).parents[1] / ".claude" / "skills" / "typed-decision" / "scripts"
+SCRIPTS = Path(__file__).parents[1] / "skills" / "decide" / "scripts"
 
 
 def load(name):

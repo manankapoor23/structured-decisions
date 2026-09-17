@@ -1,5 +1,5 @@
 ---
-name: typed-decision
+name: decide
 description: Produces machine-actionable typed decisions with explicit uncertainty, evidence, abstention, and validation. Use when a task requires classification, routing, triage, approval, risk assessment, policy checks, structured choices, or any decision that downstream code may execute.
 ---
 

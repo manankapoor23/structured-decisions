@@ -16,41 +16,45 @@ Language models are optimized to produce text for people. Production systems usu
 
 This skill provides the contract and the gate. It does not perform the action.
 
-## Requirements
-
-Python 3.10 or newer. No third-party packages, and nothing to install with pip.
-
 ## Install
 
-Clone the repository, then copy the skill into whichever scope you want.
+### Recommended: install as a plugin
+
+Two commands inside Claude Code:
+
+```text
+/plugin marketplace add manankapoor23/typed-decision-skill
+/plugin install typed-decision@manan-skills
+```
+
+Claude then reaches for the skill on its own whenever a task calls for a typed decision, and you can invoke it directly as `/typed-decision:decide`. Later releases arrive with:
+
+```text
+/plugin update typed-decision@manan-skills
+```
+
+### Alternative: copy the skill
+
+If you would rather not add a marketplace:
 
 ```bash
 git clone https://github.com/manankapoor23/typed-decision-skill.git
-cd typed-decision-skill
-```
-
-For one project:
-
-```bash
-mkdir -p /path/to/your/project/.claude/skills
-cp -R .claude/skills/typed-decision /path/to/your/project/.claude/skills/
-```
-
-For every project on your machine:
-
-```bash
 mkdir -p ~/.claude/skills
-cp -R .claude/skills/typed-decision ~/.claude/skills/
+cp -R typed-decision-skill/skills/decide ~/.claude/skills/
 ```
 
-Claude Code discovers skills from `.claude/skills/` in a project and `~/.claude/skills/` for a personal install. The skill is self-contained: the validator, gate, and calibration scripts ship inside it, and none of them require third-party packages.
+The skill is then available as `/decide` everywhere. Use `<your-project>/.claude/skills` instead of `~/.claude/skills` to scope it to a single project. This route does not receive updates.
+
+### Requirements
+
+Python 3.10 or newer for the scripts, and no third-party packages. The skill is self-contained: the validator, gate, and calibration scripts ship inside it, so an installed copy is fully functional on its own.
 
 ## Usage
 
 Ask Claude Code for a typed decision:
 
 ```text
-Use the typed decision skill.
+/typed-decision:decide
 Route this issue to one of: authentication_configuration, database, frontend,
 infrastructure, review.
 
@@ -92,7 +96,7 @@ Abstention is a first-class outcome. An abstained decision must also set `needs_
 ## Validate a decision
 
 ```bash
-python .claude/skills/typed-decision/scripts/validate.py examples/ticket-routing.json
+python skills/decide/scripts/validate.py examples/ticket-routing.json
 ```
 
 Prints `VALID`, or `INVALID` with one line per problem and exit code 1.
@@ -102,7 +106,7 @@ Prints `VALID`, or `INVALID` with one line per problem and exit code 1.
 The gate is the reason this repository exists. It runs in your code, outside the model response, so a decision cannot raise its own threshold or authorize its own action.
 
 ```bash
-python .claude/skills/typed-decision/scripts/gate.py \
+python skills/decide/scripts/gate.py \
   examples/high-confidence.json examples/policy.json --consequence low
 ```
 
@@ -135,7 +139,7 @@ The threshold is a product decision, not a claim about model accuracy. Gate diff
 A model reporting `0.91` does not make the answer 91 percent likely to be correct. Treat confidence as an uncertainty signal until you have measured it on representative labeled data for your own task.
 
 ```bash
-python .claude/skills/typed-decision/scripts/calibrate.py predictions.jsonl
+python skills/decide/scripts/calibrate.py predictions.jsonl
 ```
 
 Each line needs a confidence and an outcome:
@@ -197,8 +201,11 @@ This project is independent and not affiliated with, endorsed by, or derived fro
 ## Repository layout
 
 ```text
-.claude/skills/typed-decision/
-  SKILL.md
+.claude-plugin/
+  plugin.json          plugin manifest
+  marketplace.json     marketplace manifest, so the repo installs with /plugin
+skills/decide/
+  SKILL.md             the decision contract and procedure
   references/
     decision-policy.md
     integration.md

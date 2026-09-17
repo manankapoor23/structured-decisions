@@ -1,0 +1,22 @@
+{
+  "name": "manan-skills",
+  "owner": {
+    "name": "Manan Kapoor",
+    "url": "https://github.com/manankapoor23"
+  },
+  "description": "Skills for typed, auditable decision workflows in Claude Code.",
+  "plugins": [
+    {
+      "name": "typed-decision",
+      "source": "./",
+      "description": "Typed, auditable decisions with explicit confidence, first-class abstention, a validator, and a policy gate.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Manan Kapoor"
+      },
+      "homepage": "https://github.com/manankapoor23/typed-decision-skill",
+      "license": "MIT",
+      "keywords": ["decisions", "classification", "routing", "triage", "structured-output", "validation"]
+    }
+  ]
+}

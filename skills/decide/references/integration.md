@@ -3,13 +3,13 @@
 Project skill:
 
 ```text
-.claude/skills/typed-decision/SKILL.md
+skills/decide/SKILL.md
 ```
 
 Personal skill:
 
 ```text
-~/.claude/skills/typed-decision/SKILL.md
+~/skills/decide/SKILL.md
 ```
 
 For applications, use the skill as the behavioral contract and enforce the schema in application code. If the model API supports structured outputs, use constrained JSON output in addition to prompt instructions.
