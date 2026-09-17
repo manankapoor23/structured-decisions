@@ -35,5 +35,7 @@ jobs:
           python skills/decide/scripts/gate.py \
             examples/ambiguous.json examples/policy.json --consequence low
           test $? -eq 10
+      - name: Calibration example runs
+        run: python skills/decide/scripts/calibrate.py examples/predictions.jsonl
       - name: Tests
         run: python -m unittest discover -s tests -p 'test_*.py'

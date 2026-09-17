@@ -60,6 +60,8 @@ The skill is then available as `/decide` everywhere. Use `<your-project>/.claude
 
 Python 3.10 or newer for the scripts, and no third-party packages. The skill is self-contained: the validator, gate, and calibration scripts ship inside it, so an installed copy is fully functional on its own.
 
+The commands below use `python3`, which is what macOS and most Linux distributions provide. On Windows, use `python` instead.
+
 ## Usage
 
 Ask Claude Code for a typed decision:
@@ -138,8 +140,18 @@ Abstention is a first-class outcome. An abstained decision must also set `needs_
 
 ## Validate a decision
 
+Run the commands in this section and the next from a clone of this repository:
+
 ```bash
-python skills/decide/scripts/validate.py examples/ticket-routing.json
+git clone https://github.com/manankapoor23/typed-decision.git
+cd typed-decision
+```
+
+The same scripts ship inside the installed plugin, where the skill uses them itself. Copy them into your own project when you want the validator and gate in your pipeline.
+
+
+```bash
+python3 skills/decide/scripts/validate.py examples/ticket-routing.json
 ```
 
 Prints `VALID`, or `INVALID` with one line per problem and exit code 1.
@@ -147,7 +159,7 @@ Prints `VALID`, or `INVALID` with one line per problem and exit code 1.
 A file holding several judgments is detected automatically, and each problem is reported against the question it came from:
 
 ```bash
-python skills/decide/scripts/validate.py examples/batch-triage.json
+python3 skills/decide/scripts/validate.py examples/batch-triage.json
 ```
 
 ## Apply a policy
@@ -155,7 +167,7 @@ python skills/decide/scripts/validate.py examples/batch-triage.json
 The gate is the reason this repository exists. It runs in your code, outside the model response, so a decision cannot raise its own threshold or authorize its own action.
 
 ```bash
-python skills/decide/scripts/gate.py \
+python3 skills/decide/scripts/gate.py \
   examples/high-confidence.json examples/policy.json --consequence low
 ```
 
@@ -184,7 +196,7 @@ The consequence of the action is a `--consequence` argument supplied by the call
 To gate one judgment out of a batch, name it:
 
 ```bash
-python skills/decide/scripts/gate.py \
+python3 skills/decide/scripts/gate.py \
   examples/batch-triage.json examples/policy.json --judgment department --consequence low
 ```
 
@@ -197,10 +209,10 @@ The threshold is a product decision, not a claim about model accuracy. Gate diff
 A model reporting `0.91` does not make the answer 91 percent likely to be correct. Treat confidence as an uncertainty signal until you have measured it on representative labeled data for your own task.
 
 ```bash
-python skills/decide/scripts/calibrate.py predictions.jsonl
+python3 skills/decide/scripts/calibrate.py examples/predictions.jsonl
 ```
 
-Each line needs a confidence and an outcome:
+The repository ships a small example. Your own file needs one JSON object per line, each with a confidence and an outcome:
 
 ```json
 {"confidence":0.91,"correct":true}
@@ -217,7 +229,7 @@ The output gives mean confidence against empirical accuracy for each bin, then a
 ## Tests
 
 ```bash
-python -m unittest discover -s tests -p 'test_*.py'
+python3 -m unittest discover -s tests -p 'test_*.py'
 ```
 
 ## Architecture

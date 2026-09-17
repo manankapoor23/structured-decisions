@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.3 - 2026-09-17
+
+- Fixed every documented command. They said `python`, which does not exist on macOS or on many Linux
+  installations, so each one failed with `command not found` for anyone copying from the README. They
+  now say `python3`, with a note that Windows uses `python`.
+- Added `examples/predictions.jsonl`, so the calibration command can be run as written. It previously
+  named a file the repository did not ship.
+- Said where the command-line examples run from, since someone who installed the plugin has no
+  `skills/` directory in their own project.
+
 ## 0.1.2 - 2026-09-17
 
 - Renamed the repository to `typed-decision`, matching the plugin name, so the two install commands
