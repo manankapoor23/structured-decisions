@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.5 - 2026-09-17
+
+- The README now documents copying the skill, rather than installing from this repository as a
+  marketplace, until the community marketplace listing appears in the public catalog. Examples are
+  written as `/decide`, which is what a copied skill is called.
+- The plugin manifests are unchanged, so this repository remains a valid plugin and marketplace. The
+  marketplace install still works for anyone who prefers it:
+  `/plugin marketplace add manankapoor23/typed-decision` then
+  `/plugin install typed-decision@manan-skills`.
+
 ## 0.1.4 - 2026-09-17
 
 - Added a quick start at the top: two install commands, one prompt, and the shape of the answer, so

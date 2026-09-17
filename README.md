@@ -14,15 +14,16 @@ Claude proposes. Your code decides.
 
 ## Quick start
 
-```text
-/plugin marketplace add manankapoor23/typed-decision
-/plugin install typed-decision@manan-skills
+```bash
+git clone https://github.com/manankapoor23/typed-decision.git
+mkdir -p ~/.claude/skills
+cp -R typed-decision/skills/decide ~/.claude/skills/
 ```
 
-Then ask for a decision:
+Then ask Claude Code for a decision:
 
 ```text
-/typed-decision:decide
+/decide
 Route this issue to one of: authentication_configuration, database, frontend,
 infrastructure, review.
 Issue: Login works locally but returns HTTP 401 in production.
@@ -46,24 +47,7 @@ That is the whole idea. [Usage](#usage) shows the full response and how to ask s
 
 ## Install
 
-### Plugin (recommended)
-
-Two commands inside Claude Code:
-
-```text
-/plugin marketplace add manankapoor23/typed-decision
-/plugin install typed-decision@manan-skills
-```
-
-Claude then reaches for the skill on its own whenever a task calls for a typed decision, and you can invoke it directly as `/typed-decision:decide`. Later releases arrive with:
-
-```text
-/plugin update typed-decision@manan-skills
-```
-
-### Copy the skill instead
-
-If you would rather not add a marketplace:
+Copy the skill into your Claude Code skills directory:
 
 ```bash
 git clone https://github.com/manankapoor23/typed-decision.git
@@ -71,11 +55,26 @@ mkdir -p ~/.claude/skills
 cp -R typed-decision/skills/decide ~/.claude/skills/
 ```
 
-The skill is then available as `/decide` everywhere. Use `<your-project>/.claude/skills` instead of `~/.claude/skills` to scope it to a single project. This route does not receive updates.
+Claude picks the skill up on its next session. It reaches for it on its own whenever a task calls for a typed decision, and you can invoke it directly as `/decide`.
+
+For a single project rather than every project, copy it to that project instead:
+
+```bash
+mkdir -p <your-project>/.claude/skills
+cp -R typed-decision/skills/decide <your-project>/.claude/skills/
+```
+
+To update later, pull and copy again:
+
+```bash
+cd typed-decision && git pull && cp -R skills/decide ~/.claude/skills/
+```
+
+A one-command install is on the way: this repository is also a Claude Code plugin, and a community marketplace listing has passed review and is waiting to appear in the public catalog. These instructions will get shorter when it does.
 
 ### Requirements
 
-Python 3.10 or newer for the scripts, and no third-party packages. The skill is self-contained: the validator, gate, and calibration scripts ship inside it, so an installed copy is fully functional on its own.
+Python 3.10 or newer for the scripts, and no third-party packages. The skill is self-contained: the validator, gate, and calibration scripts ship inside it, so a copied skill is fully functional on its own.
 
 The commands below use `python3`, which is what macOS and most Linux distributions provide. On Windows, use `python` instead.
 
@@ -84,7 +83,7 @@ The commands below use `python3`, which is what macOS and most Linux distributio
 Ask Claude Code for a typed decision:
 
 ```text
-/typed-decision:decide
+/decide
 Route this issue to one of: authentication_configuration, database, frontend,
 infrastructure, review.
 
@@ -114,7 +113,7 @@ Result:
 When you have more than one question about the same input, ask them together. Each judgment is answered independently and carries its own confidence and abstention.
 
 ```text
-/typed-decision:decide
+/decide
 State: the support ticket below.
 Questions:
 - department: one of infrastructure, database, frontend, authentication_configuration, review
