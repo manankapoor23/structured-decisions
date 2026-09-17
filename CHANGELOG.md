@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.2 - 2026-09-17
+
+- Renamed the repository to `typed-decision`, matching the plugin name, so the two install commands
+  read consistently. Installs become
+  `/plugin marketplace add manankapoor23/typed-decision` followed by
+  `/plugin install typed-decision@manan-skills`. The old repository URL redirects.
+- The skill stays `decide`, so the command remains `/typed-decision:decide`. Plugin skills are always
+  namespaced by plugin name, so naming the skill `typed-decision` would produce
+  `/typed-decision:typed-decision` rather than a single word.
+- No change to the decision contract, the validator, or the gate.
+
 ## 0.1.1 - 2026-09-17
 
 - Say plainly what this is: an experiment in offering the interface of a typed decision model from
@@ -22,6 +33,6 @@
 - JSON Schemas for decisions and policies.
 - Empirical confidence calibration utility reporting per-bin accuracy, expected calibration error, and Brier score.
 - Distributed as a Claude Code plugin: the repository is a plugin marketplace, so installation is
-  `/plugin marketplace add manankapoor23/structured-decisions` followed by
+  `/plugin marketplace add manankapoor23/typed-decision` followed by
   `/plugin install typed-decision@manan-skills`.
 - Examples, 27 tests, CI, and MIT license.

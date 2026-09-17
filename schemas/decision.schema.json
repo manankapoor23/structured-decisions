@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/manankapoor23/structured-decisions/main/schemas/decision.schema.json",
+  "$id": "https://raw.githubusercontent.com/manankapoor23/typed-decision/main/schemas/decision.schema.json",
   "title": "Typed Decision",
   "type": "object",
   "additionalProperties": false,

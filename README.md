@@ -34,7 +34,7 @@ You get the contract and the gate. Your code still performs the action.
 Two commands inside Claude Code:
 
 ```text
-/plugin marketplace add manankapoor23/structured-decisions
+/plugin marketplace add manankapoor23/typed-decision
 /plugin install typed-decision@manan-skills
 ```
 
@@ -49,9 +49,9 @@ Claude then reaches for the skill on its own whenever a task calls for a typed d
 If you would rather not add a marketplace:
 
 ```bash
-git clone https://github.com/manankapoor23/structured-decisions.git
+git clone https://github.com/manankapoor23/typed-decision.git
 mkdir -p ~/.claude/skills
-cp -R structured-decisions/skills/decide ~/.claude/skills/
+cp -R typed-decision/skills/decide ~/.claude/skills/
 ```
 
 The skill is then available as `/decide` everywhere. Use `<your-project>/.claude/skills` instead of `~/.claude/skills` to scope it to a single project. This route does not receive updates.
