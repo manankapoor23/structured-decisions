@@ -1,0 +1,29 @@
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate examples
+        run: |
+          for file in examples/ticket-routing.json examples/high-confidence.json examples/ambiguous.json; do
+            python .claude/skills/typed-decision/scripts/validate.py "$file"
+          done
+      - name: Gate an automatable decision
+        run: |
+          python .claude/skills/typed-decision/scripts/gate.py \
+            examples/high-confidence.json examples/policy.json --consequence low
+      - name: Gate an abstention
+        run: |
+          set +e
+          python .claude/skills/typed-decision/scripts/gate.py \
+            examples/ambiguous.json examples/policy.json --consequence low
+          test $? -eq 10
+      - name: Tests
+        run: python -m unittest discover -s tests -p 'test_*.py'

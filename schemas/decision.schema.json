@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/manankapoor23/typed-decision-skill/main/schemas/decision.schema.json",
+  "title": "Typed Decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decision", "confidence", "needs_review", "abstained", "evidence", "reason", "missing_information"],
+  "properties": {
+    "decision": {"type": "string", "minLength": 1},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "needs_review": {"type": "boolean"},
+    "abstained": {"type": "boolean"},
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "text"],
+        "properties": {
+          "kind": {"type": "string", "enum": ["observed", "inferred", "missing"]},
+          "text": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "reason": {"type": "string", "minLength": 1},
+    "missing_information": {"type": "array", "items": {"type": "string"}}
+  }
+}

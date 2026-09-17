@@ -1,0 +1,1 @@
+{"decision":"authentication_configuration","confidence":0.86,"needs_review":false,"abstained":false,"evidence":[{"kind":"observed","text":"Authentication succeeds locally."},{"kind":"observed","text":"Production returns HTTP 401."}],"reason":"The environment-specific 401 points to production authentication configuration or credentials.","missing_information":[]}

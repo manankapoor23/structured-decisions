@@ -1,0 +1,1 @@
+{"decision":"frontend","confidence":0.94,"needs_review":false,"abstained":false,"evidence":[{"kind":"observed","text":"The stack trace names the React render path."},{"kind":"observed","text":"No server-side error was logged for the same request id."}],"reason":"The failure is contained to client-side rendering, so the frontend team owns it.","missing_information":[]}

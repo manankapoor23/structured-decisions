@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/manankapoor23/typed-decision-skill/main/schemas/policy.schema.json",
+  "title": "Decision Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["allowed_decisions", "automation_threshold", "review_below", "require_evidence"],
+  "properties": {
+    "allowed_decisions": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "automation_threshold": {"type": "number", "minimum": 0, "maximum": 1},
+    "review_below": {"type": "number", "minimum": 0, "maximum": 1},
+    "max_consequence": {"type": "string", "enum": ["low", "medium", "high"]},
+    "require_evidence": {"type": "boolean"}
+  }
+}

@@ -1,0 +1,1 @@
+{"decision":"review","confidence":0.34,"needs_review":true,"abstained":true,"evidence":[{"kind":"observed","text":"The report only says the system stopped working after an update."}],"reason":"There is not enough information to identify the failing subsystem or route safely.","missing_information":["error message","affected component","environment"]}
