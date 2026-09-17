@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.7 - 2026-09-17
+
+- Fixed the install path in `references/integration.md`, which read `~/skills/decide/SKILL.md`. Claude
+  Code looks in `~/.claude/skills`, so the path as written pointed nowhere. It now gives both the
+  per-project and the every-project location.
+- The repository layout in the README omitted `examples/predictions.jsonl`, which one of its own
+  commands names, and `tests/_load.py`.
+
 ## 0.1.6 - 2026-09-17
 
 - Renamed the marketplace from `manan-skills` to `typed-decision`, so the plugin installs as

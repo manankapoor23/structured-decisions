@@ -1,15 +1,10 @@
 # Integration Patterns
 
-Project skill:
+Where the skill lives once installed:
 
 ```text
-skills/decide/SKILL.md
-```
-
-Personal skill:
-
-```text
-~/skills/decide/SKILL.md
+<your-project>/.claude/skills/decide/SKILL.md   one project
+~/.claude/skills/decide/SKILL.md                every project
 ```
 
 For applications, use the skill as the behavioral contract and enforce the schema in application code. If the model API supports structured outputs, use constrained JSON output in addition to prompt instructions.

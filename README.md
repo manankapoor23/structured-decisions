@@ -308,7 +308,7 @@ This project is independent. It is not affiliated with, endorsed by, sponsored b
 ```text
 .claude-plugin/
   plugin.json          plugin manifest
-  marketplace.json     marketplace manifest, so the repo installs with /plugin
+  marketplace.json     marketplace manifest, kept ready for the plugin install
 skills/decide/
   SKILL.md             the decision contract and procedure
   references/
@@ -329,7 +329,9 @@ examples/
   batch-triage.json
   policy.json
   policy-urgency.json
+  predictions.jsonl
 tests/
+  _load.py
   test_validator.py
   test_gate.py
 ```
