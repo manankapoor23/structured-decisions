@@ -1,0 +1,1 @@
+{"allowed_decisions":["urgent","not_urgent"],"automation_threshold":0.90,"review_below":0.90,"require_evidence":true}

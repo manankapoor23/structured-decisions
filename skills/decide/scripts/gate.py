@@ -93,10 +93,31 @@ def main():
         choices=sorted(CONSEQUENCE_ORDER),
         help="consequence of the action this decision would trigger",
     )
+    parser.add_argument(
+        "--judgment",
+        metavar="ID",
+        help="gate one judgment by id, when the file holds several",
+    )
     args = parser.parse_args()
 
     decision = json.loads(Path(args.decision).read_text(encoding="utf-8"))
     policy = json.loads(Path(args.policy).read_text(encoding="utf-8"))
+
+    if isinstance(decision, dict) and "judgments" in decision:
+        if args.judgment is None:
+            print("INVALID USAGE")
+            print(f"- the file holds several judgments; pass --judgment with one of: "
+                  f"{sorted(decision['judgments'])}")
+            raise SystemExit(2)
+        if args.judgment not in decision["judgments"]:
+            print("INVALID USAGE")
+            print(f"- no judgment '{args.judgment}'; the file has: {sorted(decision['judgments'])}")
+            raise SystemExit(2)
+        decision = decision["judgments"][args.judgment]
+    elif args.judgment is not None:
+        print("INVALID USAGE")
+        print("- --judgment was given but the file holds a single decision")
+        raise SystemExit(2)
 
     policy_errors = validate_policy(policy)
     if policy_errors:

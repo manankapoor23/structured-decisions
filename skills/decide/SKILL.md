@@ -20,6 +20,17 @@ Every decision should have:
 
 If the caller provides a schema, decision labels, thresholds, or policy, those constraints override this default contract.
 
+## Input: state and questions
+
+Read the caller's input as two separate things.
+
+- **State**: the content to evaluate. A message, a document, a record, or an object holding several related parts.
+- **Questions**: the judgments to make about that state.
+
+When the state is an object with named parts, anchor each judgment to the part it concerns: "Does `refund_policy` cover the charge in `ticket.messages[0]`?" is answerable, "should we refund this?" invites you to supply facts yourself.
+
+Never let a question's phrasing add facts to the state. If a question presumes something the state does not contain, that presumption is missing information, not evidence.
+
 ## Decision procedure
 
 1. Parse the question into:
@@ -38,6 +49,42 @@ If the caller provides a schema, decision labels, thresholds, or policy, those c
    - conflicting evidence -> review
    - missing required evidence -> review or abstain
 7. Return only schema-valid structured output when structured output is requested.
+
+## Several judgments in one response
+
+When the caller asks several independent questions about one state, answer all of them in one response rather than one per turn.
+
+```json
+{
+  "judgments": {
+    "<question id>": { "decision": "...", "confidence": 0.0, "...": "full decision contract" },
+    "<question id>": { "decision": "...", "confidence": 0.0, "...": "full decision contract" }
+  }
+}
+```
+
+- Every judgment carries the full contract, including its own confidence and abstention.
+- Evaluate each judgment independently against the same state. One judgment's answer is not evidence for another.
+- Answer every question asked, including ones that may turn out to be irrelevant. The caller's code decides which answers it needs.
+- Do not collapse several questions into a single label.
+- If a second judgment genuinely cannot be framed until the first is answered, say so and answer the first rather than guessing at the second.
+
+## Splitting a complex judgment
+
+A judgment resting on several independent factors should be several questions, not one. Rather than "is this pull request risky", ask separately about blast radius, test coverage, and reviewer familiarity, and let the caller combine them.
+
+Give each sub-judgment an ordered label set, so the caller's code can map labels to numbers and weight them:
+
+```json
+{
+  "judgments": {
+    "blast_radius": {"decision": "wide", "confidence": 0.88, "...": "..."},
+    "test_coverage": {"decision": "thin", "confidence": 0.79, "...": "..."}
+  }
+}
+```
+
+The weighting belongs in the caller's code, never in this response. Weights are a product decision that should change without reprompting. Do not invent an overall score unless the caller asked for one as its own question.
 
 ## Abstention
 
@@ -141,9 +188,50 @@ Input: `Route this issue: 'It stopped working after the update.'`
 }
 ```
 
+### Several judgments at once
+
+Input: a state holding a support ticket, and three questions about it.
+
+```json
+{
+  "judgments": {
+    "department": {
+      "decision": "technical",
+      "confidence": 0.93,
+      "needs_review": false,
+      "abstained": false,
+      "evidence": [{"kind": "observed", "text": "The API returns HTTP 500 on every request."}],
+      "reason": "A server-side error on the integration path is an engineering problem.",
+      "missing_information": []
+    },
+    "is_urgent": {
+      "decision": "urgent",
+      "confidence": 0.91,
+      "needs_review": false,
+      "abstained": false,
+      "evidence": [{"kind": "observed", "text": "Customer orders cannot be processed until it is fixed."}],
+      "reason": "The reporter states that business operations are blocked.",
+      "missing_information": []
+    },
+    "refund_owed": {
+      "decision": "review",
+      "confidence": 0.22,
+      "needs_review": true,
+      "abstained": true,
+      "evidence": [{"kind": "missing", "text": "The ticket says nothing about billing or charges."}],
+      "reason": "Nothing in the state speaks to a refund, so the question cannot be answered from it.",
+      "missing_information": ["whether the customer was charged", "the refund policy"]
+    }
+  }
+}
+```
+
+The third question turned out not to apply. Answering it anyway costs little and keeps the shape predictable; the caller's code ignores it.
+
 ## Operational rules
 
 - Prefer deterministic schemas over prose.
+- Answer independent questions together in one response rather than one at a time.
 - Keep evidence short and auditable.
 - Never add a label outside the caller's allowed set.
 - Never use confidence to override hard constraints.

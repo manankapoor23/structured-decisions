@@ -34,15 +34,31 @@ def validate(obj, allowed_decisions=None, require_evidence=True):
     if obj.get("abstained") and not obj.get("missing_information"): errors.append("abstained decisions should identify missing information")
     return errors
 
+def validate_batch(obj, allowed_by_id=None, require_evidence=True):
+    """Validate {"judgments": {id: decision}}, one independent judgment per id."""
+    if not isinstance(obj, dict): return ["batch must be an object"]
+    extra = set(obj) - {"judgments"}
+    if extra: return [f"unexpected fields: {sorted(extra)}"]
+    judgments = obj.get("judgments")
+    if not isinstance(judgments, dict): return ["judgments must be an object keyed by question id"]
+    if not judgments: return ["judgments must not be empty"]
+    errors = []
+    for jid, judgment in judgments.items():
+        allowed = (allowed_by_id or {}).get(jid)
+        errors.extend(f"judgments.{jid}: {e}" for e in validate(judgment, allowed, require_evidence))
+    return errors
+
+
 def main():
     if len(sys.argv) != 2:
         print("usage: validate.py decision.json", file=sys.stderr); raise SystemExit(2)
     with open(sys.argv[1], encoding="utf-8") as f: obj = json.load(f)
-    errors = validate(obj)
+    is_batch = isinstance(obj, dict) and "judgments" in obj
+    errors = validate_batch(obj) if is_batch else validate(obj)
     if errors:
         print("INVALID")
         for e in errors: print(f"- {e}")
         raise SystemExit(1)
-    print("VALID")
+    print(f"VALID ({len(obj['judgments'])} judgments)" if is_batch else "VALID")
 
 if __name__ == "__main__": main()

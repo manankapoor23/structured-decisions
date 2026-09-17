@@ -16,6 +16,7 @@ Claude proposes. Your code decides.
 - **Confidence you can threshold on.** A number, with an honest caveat about what it does and does not mean.
 - **A real answer for "not enough information."** Abstention is a first-class outcome, not a hedge buried in prose.
 - **Evidence you can audit.** Each observation tagged as observed, inferred, or missing.
+- **Several judgments in one answer.** Ask every question you might need about the same input; your code picks the ones it uses.
 - **A gate you control.** Thresholds and consequence limits live in your code, where the model cannot reach them.
 
 ## Why
@@ -31,7 +32,7 @@ You get the contract and the gate. Your code still performs the action.
 Two commands inside Claude Code:
 
 ```text
-/plugin marketplace add manankapoor23/typed-decision-skill
+/plugin marketplace add manankapoor23/structured-decisions
 /plugin install typed-decision@manan-skills
 ```
 
@@ -46,9 +47,9 @@ Claude then reaches for the skill on its own whenever a task calls for a typed d
 If you would rather not add a marketplace:
 
 ```bash
-git clone https://github.com/manankapoor23/typed-decision-skill.git
+git clone https://github.com/manankapoor23/structured-decisions.git
 mkdir -p ~/.claude/skills
-cp -R typed-decision-skill/skills/decide ~/.claude/skills/
+cp -R structured-decisions/skills/decide ~/.claude/skills/
 ```
 
 The skill is then available as `/decide` everywhere. Use `<your-project>/.claude/skills` instead of `~/.claude/skills` to scope it to a single project. This route does not receive updates.
@@ -87,6 +88,38 @@ Result:
 }
 ```
 
+### Ask several questions at once
+
+When you have more than one question about the same input, ask them together. Each judgment is answered independently and carries its own confidence and abstention.
+
+```text
+/typed-decision:decide
+State: the support ticket below.
+Questions:
+- department: one of infrastructure, database, frontend, authentication_configuration, review
+- is_urgent: one of urgent, not_urgent
+- refund_owed: one of refund, no_refund, review
+
+Ticket: Our API has returned HTTP 500 on every request for 20 minutes and we
+cannot process customer orders. No deploy went out today.
+```
+
+```json
+{
+  "judgments": {
+    "department": {"decision": "infrastructure", "confidence": 0.93, "...": "..."},
+    "is_urgent": {"decision": "urgent", "confidence": 0.95, "...": "..."},
+    "refund_owed": {"decision": "review", "confidence": 0.21, "abstained": true, "...": "..."}
+  }
+}
+```
+
+The third question did not apply to this ticket, and the skill abstained rather than inventing an answer. Asking it anyway costs almost nothing and keeps the response shape predictable.
+
+Keep the input's content separate from the questions you ask about it. When the content is an object with named parts, name the part each question concerns, so a judgment is anchored to evidence instead of to your phrasing.
+
+A judgment that rests on several independent factors should be several questions. Rather than asking "is this pull request risky", ask about blast radius, test coverage, and reviewer familiarity, give each an ordered label set, and weight them in your own code where the weights can change without reprompting.
+
 ## The decision contract
 
 | Field | Type | Meaning |
@@ -108,6 +141,12 @@ python skills/decide/scripts/validate.py examples/ticket-routing.json
 ```
 
 Prints `VALID`, or `INVALID` with one line per problem and exit code 1.
+
+A file holding several judgments is detected automatically, and each problem is reported against the question it came from:
+
+```bash
+python skills/decide/scripts/validate.py examples/batch-triage.json
+```
 
 ## Apply a policy
 
@@ -140,6 +179,15 @@ The exit codes let a shell script branch on the verdict without parsing output.
 
 The consequence of the action is a `--consequence` argument supplied by the caller, never a field in the decision object. If a policy sets `max_consequence` and the caller does not state the consequence, the gate returns `HUMAN_REVIEW` rather than assuming the action is safe.
 
+To gate one judgment out of a batch, name it:
+
+```bash
+python skills/decide/scripts/gate.py \
+  examples/batch-triage.json examples/policy.json --judgment department --consequence low
+```
+
+A policy describes one question's answer space, so a batch needs one policy per question. Gating the urgency judgment against the routing policy above returns `REJECT_RESULT`, because `urgent` is not one of the routing labels. That is the intended behavior: it catches a decision that was gated against the wrong policy.
+
 The threshold is a product decision, not a claim about model accuracy. Gate different actions at different levels according to what being wrong costs.
 
 ## Confidence is not probability
@@ -156,7 +204,13 @@ Each line needs a confidence and an outcome:
 {"confidence":0.91,"correct":true}
 ```
 
-The output gives you mean confidence against empirical accuracy per bin, which is what tells you whether 0.9 means anything in your domain.
+The output gives mean confidence against empirical accuracy for each bin, then a summary:
+
+```json
+{"summary": {"count": 200, "mean_confidence": 0.7208, "accuracy": 0.645, "ece": 0.1087, "brier": 0.2326, "bins_populated": 5}}
+```
+
+`ece` is the expected calibration error, the count-weighted average gap between confidence and accuracy; `brier` is the mean squared error of the confidence values. Lower is better for both. An `ece` near zero means confidence tracks accuracy across groups of predictions, which is the only sense in which it can be trusted. It still says nothing about whether any single answer is right.
 
 ## Tests
 
@@ -223,12 +277,15 @@ skills/decide/
     calibrate.py
 schemas/
   decision.schema.json
+  judgments.schema.json
   policy.schema.json
 examples/
   ticket-routing.json
   high-confidence.json
   ambiguous.json
+  batch-triage.json
   policy.json
+  policy-urgency.json
 tests/
   test_validator.py
   test_gate.py

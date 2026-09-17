@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/manankapoor23/structured-decisions/main/schemas/judgments.schema.json",
+  "title": "Typed Judgments",
+  "description": "Several independent judgments about one state, keyed by question id.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["judgments"],
+  "properties": {
+    "judgments": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {"$ref": "decision.schema.json"}
+    }
+  }
+}

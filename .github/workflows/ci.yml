@@ -19,6 +19,12 @@ jobs:
           for file in examples/ticket-routing.json examples/high-confidence.json examples/ambiguous.json; do
             python skills/decide/scripts/validate.py "$file"
           done
+      - name: Validate a batch of judgments
+        run: python skills/decide/scripts/validate.py examples/batch-triage.json
+      - name: Gate one judgment from a batch
+        run: |
+          python skills/decide/scripts/gate.py \
+            examples/batch-triage.json examples/policy.json --judgment department --consequence low
       - name: Gate an automatable decision
         run: |
           python skills/decide/scripts/gate.py \

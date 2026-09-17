@@ -74,5 +74,13 @@ class GateTests(unittest.TestCase):
         self.assertTrue(mod.validate_policy({"allowed_decisions": ["approve"]}))
 
 
+class BatchGateTests(unittest.TestCase):
+    def test_gating_a_named_judgment(self):
+        batch = {"judgments": {"a": decision(), "b": decision(abstained=True, needs_review=True,
+                                                             missing_information=["x"], decision="review")}}
+        self.assertEqual(mod.gate(batch["judgments"]["a"], POLICY, "low")[0], "AUTOMATION_ALLOWED")
+        self.assertEqual(mod.gate(batch["judgments"]["b"], POLICY, "low")[0], "HUMAN_REVIEW")
+
+
 if __name__ == "__main__":
     unittest.main()
