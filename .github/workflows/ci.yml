@@ -29,12 +29,12 @@ jobs:
         run: |
           python skills/decide/scripts/gate.py \
             examples/high-confidence.json examples/policy.json --consequence low
-      - name: Gate an abstention
+      - name: An abstention exits 30, not 0
         run: |
           set +e
           python skills/decide/scripts/gate.py \
             examples/ambiguous.json examples/policy.json --consequence low
-          test $? -eq 10
+          test $? -eq 30
       - name: Tiered policy gates by action cost
         run: |
           set -e

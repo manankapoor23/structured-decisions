@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1 - 2026-09-17
+
+- Fixed the CI check for abstention, which still asserted exit code 10 after 0.2.0 moved abstention
+  to its own verdict at exit code 30. The behaviour was correct; the check was not, and it failed
+  the build for v0.2.0.
+
 ## 0.2.0 - 2026-09-17
 
 Thresholds are no longer one global number.
