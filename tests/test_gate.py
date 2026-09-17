@@ -41,9 +41,9 @@ class GateTests(unittest.TestCase):
         verdict, _ = mod.gate(decision(decision="delete_account"), POLICY, consequence="low")
         self.assertEqual(verdict, "REJECT_RESULT")
 
-    def test_abstention_goes_to_review(self):
+    def test_abstention_is_its_own_verdict(self):
         obj = decision(abstained=True, needs_review=True, missing_information=["y"], decision="review")
-        self.assertEqual(mod.gate(obj, POLICY, consequence="low")[0], "HUMAN_REVIEW")
+        self.assertEqual(mod.gate(obj, POLICY, consequence="low")[0], "ABSTAIN")
 
     def test_low_confidence_goes_to_review(self):
         self.assertEqual(mod.gate(decision(confidence=0.5), POLICY, consequence="low")[0], "HUMAN_REVIEW")
@@ -57,7 +57,7 @@ class GateTests(unittest.TestCase):
     def test_unstated_consequence_goes_to_review(self):
         verdict, reasons = mod.gate(decision(), POLICY)
         self.assertEqual(verdict, "HUMAN_REVIEW")
-        self.assertTrue(any("did not state" in r for r in reasons))
+        self.assertTrue(any("stated the consequence" in r for r in reasons))
 
     def test_policy_without_consequence_limit_automates(self):
         policy = {k: v for k, v in POLICY.items() if k != "max_consequence"}
@@ -79,7 +79,7 @@ class BatchGateTests(unittest.TestCase):
         batch = {"judgments": {"a": decision(), "b": decision(abstained=True, needs_review=True,
                                                              missing_information=["x"], decision="review")}}
         self.assertEqual(mod.gate(batch["judgments"]["a"], POLICY, "low")[0], "AUTOMATION_ALLOWED")
-        self.assertEqual(mod.gate(batch["judgments"]["b"], POLICY, "low")[0], "HUMAN_REVIEW")
+        self.assertEqual(mod.gate(batch["judgments"]["b"], POLICY, "low")[0], "ABSTAIN")
 
 
 if __name__ == "__main__":

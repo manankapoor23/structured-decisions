@@ -1,5 +1,46 @@
 # Changelog
 
+## 0.2.0 - 2026-09-17
+
+Thresholds are no longer one global number.
+
+- **Hierarchical threshold selection.** The gate takes the first that applies: an action's own
+  threshold, the action's consequence via a cost ladder, an explicit per-class threshold, a
+  threshold derived from labelled outcomes, then `automation_threshold` as a fallback. When none
+  applies the decision goes to a person rather than to a guessed number. `automation_threshold` is
+  now optional and documented as a fallback rather than the preferred strategy.
+- **Thresholds follow cost, not class identity.** `actions` describes what each action does and what
+  it costs; `consequence_thresholds` maps cost to required confidence. The same decision at the same
+  confidence can automate one action and require review for another.
+- **Calibration can set the threshold.** `calibrate.py --artifact` writes per-class and per-action
+  observed accuracy, and a policy can derive its cutoff from the lowest confidence bin that reached
+  a target accuracy.
+- **Rare classes do not get their own fitted threshold.** `calibration.min_samples` sets the bar and
+  `calibration.insufficient_data` chooses the fallback: `review` (default) refuses to automate the
+  group, `shrink` pulls its accuracies toward the global rate weighted by sample count, `global`
+  uses the population threshold. A class bin with no global counterpart is dropped rather than
+  trusted.
+- **`ABSTAIN` is now its own verdict**, exit code 30, separate from `HUMAN_REVIEW`. A decision that
+  needs checking and the absence of a decision meant different things to the caller and now read
+  differently. Only exit code 0 still means automate.
+- **Empty evidence routes to review rather than rejection.** Shape is a contract question; whether
+  there is enough evidence to act is a policy question a person can answer. The `require_evidence`
+  branch in the gate was previously unreachable, because validation failed the decision first.
+- **An action that names a consequence with no matching ladder entry is now a policy error**, rather
+  than silently falling through to the global fallback.
+- **A conflicting policy is rejected at validation.** A cost ladder that decreases as consequence
+  rises, an action threshold below its own consequence floor, a class threshold for a label that is
+  not an allowed decision, and `review_below` without `automation_threshold` are all errors. If the
+  caller and the policy disagree about an action's consequence at gate time, the decision goes to a
+  person.
+- **The model still cannot reach any of this.** Threshold, action, and consequence come from the
+  policy and the caller. A decision carrying such a field is rejected by the validator, and there
+  are tests asserting it.
+- New `scripts/thresholds.py`, `schemas/calibration.schema.json`, `examples/policy-tiered.json`,
+  `examples/calibration.json`, `examples/predictions-labelled.jsonl`, and `gate.py --json` for the
+  full audit trail. 27 tests to 87.
+- `review_below` is still accepted and validated, but it has no effect on any verdict.
+
 ## 0.1.7 - 2026-09-17
 
 - Fixed the install path in `references/integration.md`, which read `~/skills/decide/SKILL.md`. Claude

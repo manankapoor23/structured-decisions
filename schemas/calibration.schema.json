@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/manankapoor23/typed-decision/main/schemas/calibration.schema.json",
+  "title": "Calibration Artifact",
+  "description": "Observed accuracy per confidence bin, per group. Counts from past outcomes, not probabilities, and carrying no confidence intervals. Produced by scripts/calibrate.py --artifact.",
+  "type": "object",
+  "required": ["groups"],
+  "properties": {
+    "version": {"type": "integer"},
+    "bins": {"type": "integer", "minimum": 1},
+    "min_samples": {"type": "integer", "minimum": 1},
+    "caveat": {"type": "string"},
+    "groups": {
+      "description": "Keyed 'global', '<class>', or '<action>:<class>'. The gate prefers the most specific group that exists.",
+      "type": "object", "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["count", "bins"],
+        "properties": {
+          "count": {"type": "integer", "minimum": 0},
+          "accuracy": {"type": "number", "minimum": 0, "maximum": 1},
+          "mean_confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "ece": {"type": "number", "minimum": 0},
+          "brier": {"type": "number", "minimum": 0},
+          "bins_populated": {"type": "integer", "minimum": 0},
+          "bins": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["lower", "upper", "count", "empirical_accuracy"],
+              "properties": {
+                "lower": {"type": "number", "minimum": 0, "maximum": 1},
+                "upper": {"type": "number", "minimum": 0, "maximum": 1},
+                "count": {"type": "integer", "minimum": 0},
+                "mean_confidence": {"type": "number", "minimum": 0, "maximum": 1},
+                "empirical_accuracy": {"type": "number", "minimum": 0, "maximum": 1}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

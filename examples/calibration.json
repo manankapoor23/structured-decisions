@@ -1,0 +1,246 @@
+{
+  "version": 1,
+  "bins": 10,
+  "min_samples": 30,
+  "groups": {
+    "auto_delete:spam": {
+      "count": 180,
+      "mean_confidence": 0.8056,
+      "accuracy": 0.8444,
+      "ece": 0.0494,
+      "brier": 0.1291,
+      "bins_populated": 4,
+      "bins": [
+        {
+          "lower": 0.6,
+          "upper": 0.7,
+          "count": 36,
+          "mean_confidence": 0.6439,
+          "empirical_accuracy": 0.7222
+        },
+        {
+          "lower": 0.7,
+          "upper": 0.8,
+          "count": 45,
+          "mean_confidence": 0.7418,
+          "empirical_accuracy": 0.8222
+        },
+        {
+          "lower": 0.8,
+          "upper": 0.9,
+          "count": 50,
+          "mean_confidence": 0.85,
+          "empirical_accuracy": 0.88
+        },
+        {
+          "lower": 0.9,
+          "upper": 1.0,
+          "count": 49,
+          "mean_confidence": 0.9378,
+          "empirical_accuracy": 0.9184
+        }
+      ]
+    },
+    "ban": {
+      "count": 7,
+      "mean_confidence": 0.9157,
+      "accuracy": 0.7143,
+      "ece": 0.2757,
+      "brier": 0.2454,
+      "bins_populated": 2,
+      "bins": [
+        {
+          "lower": 0.8,
+          "upper": 0.9,
+          "count": 2,
+          "mean_confidence": 0.87,
+          "empirical_accuracy": 1.0
+        },
+        {
+          "lower": 0.9,
+          "upper": 1.0,
+          "count": 5,
+          "mean_confidence": 0.934,
+          "empirical_accuracy": 0.6
+        }
+      ]
+    },
+    "ban_account:ban": {
+      "count": 7,
+      "mean_confidence": 0.9157,
+      "accuracy": 0.7143,
+      "ece": 0.2757,
+      "brier": 0.2454,
+      "bins_populated": 2,
+      "bins": [
+        {
+          "lower": 0.8,
+          "upper": 0.9,
+          "count": 2,
+          "mean_confidence": 0.87,
+          "empirical_accuracy": 1.0
+        },
+        {
+          "lower": 0.9,
+          "upper": 1.0,
+          "count": 5,
+          "mean_confidence": 0.934,
+          "empirical_accuracy": 0.6
+        }
+      ]
+    },
+    "global": {
+      "count": 277,
+      "mean_confidence": 0.8036,
+      "accuracy": 0.7978,
+      "ece": 0.0276,
+      "brier": 0.1537,
+      "bins_populated": 4,
+      "bins": [
+        {
+          "lower": 0.6,
+          "upper": 0.7,
+          "count": 57,
+          "mean_confidence": 0.6482,
+          "empirical_accuracy": 0.6842
+        },
+        {
+          "lower": 0.7,
+          "upper": 0.8,
+          "count": 69,
+          "mean_confidence": 0.742,
+          "empirical_accuracy": 0.7246
+        },
+        {
+          "lower": 0.8,
+          "upper": 0.9,
+          "count": 79,
+          "mean_confidence": 0.8485,
+          "empirical_accuracy": 0.8608
+        },
+        {
+          "lower": 0.9,
+          "upper": 1.0,
+          "count": 72,
+          "mean_confidence": 0.9365,
+          "empirical_accuracy": 0.8889
+        }
+      ]
+    },
+    "issue_refund:refund": {
+      "count": 90,
+      "mean_confidence": 0.791,
+      "accuracy": 0.7111,
+      "ece": 0.0799,
+      "brier": 0.1959,
+      "bins_populated": 4,
+      "bins": [
+        {
+          "lower": 0.6,
+          "upper": 0.7,
+          "count": 21,
+          "mean_confidence": 0.6557,
+          "empirical_accuracy": 0.619
+        },
+        {
+          "lower": 0.7,
+          "upper": 0.8,
+          "count": 24,
+          "mean_confidence": 0.7425,
+          "empirical_accuracy": 0.5417
+        },
+        {
+          "lower": 0.8,
+          "upper": 0.9,
+          "count": 27,
+          "mean_confidence": 0.8441,
+          "empirical_accuracy": 0.8148
+        },
+        {
+          "lower": 0.9,
+          "upper": 1.0,
+          "count": 18,
+          "mean_confidence": 0.9339,
+          "empirical_accuracy": 0.8889
+        }
+      ]
+    },
+    "refund": {
+      "count": 90,
+      "mean_confidence": 0.791,
+      "accuracy": 0.7111,
+      "ece": 0.0799,
+      "brier": 0.1959,
+      "bins_populated": 4,
+      "bins": [
+        {
+          "lower": 0.6,
+          "upper": 0.7,
+          "count": 21,
+          "mean_confidence": 0.6557,
+          "empirical_accuracy": 0.619
+        },
+        {
+          "lower": 0.7,
+          "upper": 0.8,
+          "count": 24,
+          "mean_confidence": 0.7425,
+          "empirical_accuracy": 0.5417
+        },
+        {
+          "lower": 0.8,
+          "upper": 0.9,
+          "count": 27,
+          "mean_confidence": 0.8441,
+          "empirical_accuracy": 0.8148
+        },
+        {
+          "lower": 0.9,
+          "upper": 1.0,
+          "count": 18,
+          "mean_confidence": 0.9339,
+          "empirical_accuracy": 0.8889
+        }
+      ]
+    },
+    "spam": {
+      "count": 180,
+      "mean_confidence": 0.8056,
+      "accuracy": 0.8444,
+      "ece": 0.0494,
+      "brier": 0.1291,
+      "bins_populated": 4,
+      "bins": [
+        {
+          "lower": 0.6,
+          "upper": 0.7,
+          "count": 36,
+          "mean_confidence": 0.6439,
+          "empirical_accuracy": 0.7222
+        },
+        {
+          "lower": 0.7,
+          "upper": 0.8,
+          "count": 45,
+          "mean_confidence": 0.7418,
+          "empirical_accuracy": 0.8222
+        },
+        {
+          "lower": 0.8,
+          "upper": 0.9,
+          "count": 50,
+          "mean_confidence": 0.85,
+          "empirical_accuracy": 0.88
+        },
+        {
+          "lower": 0.9,
+          "upper": 1.0,
+          "count": 49,
+          "mean_confidence": 0.9378,
+          "empirical_accuracy": 0.9184
+        }
+      ]
+    }
+  },
+  "caveat": "Empirical counts from past outcomes, not probabilities. No confidence intervals are computed. A threshold selected from these same rows is optimistically biased; validate on held-out data."
+}

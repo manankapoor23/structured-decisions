@@ -102,16 +102,28 @@ When abstaining, set `needs_review: true` and explain what information would res
 
 ## Confidence policy
 
-Do not present confidence as statistical probability unless it has been empirically calibrated.
+Report your confidence. Do not reason about what it entitles you to.
 
-Use this interpretation by default:
+The number you report is a signal about your own uncertainty. It is not a probability, and it is not permission. Whether a given confidence is enough to act on depends on what the action costs, which you are not told and must not guess: the same 0.86 may file a message safely and be nowhere near enough to close an account.
 
-- `0.00-0.49`: weak support; review.
-- `0.50-0.74`: moderate support; review.
-- `0.75-0.89`: strong support; review for consequential actions.
-- `0.90-1.00`: very strong support; automation is still subject to the caller's policy.
+Use this interpretation when the caller gives you no other:
 
-If a calibration table is provided, use it to convert raw confidence into calibrated confidence and label the field accordingly. Never fabricate calibration data.
+- `0.00-0.49`: weak support.
+- `0.50-0.74`: moderate support.
+- `0.75-0.89`: strong support.
+- `0.90-1.00`: very strong support.
+
+Never lower your reported confidence to make a decision look safe, and never raise it to make one look actionable. Both corrupt the only signal the gate has.
+
+If the caller supplies a calibration table, you may report calibrated confidence in addition to raw, and say which is which. Never fabricate calibration data, and never describe an uncalibrated confidence as a probability of being correct.
+
+## What you do not control
+
+You do not set the threshold, name the action, or state its consequence. Those belong to the caller's policy, which you do not see.
+
+Never emit a `threshold`, `consequence`, `action`, `automate`, or `approved` field, and never add any other field to the contract. The validator rejects a decision carrying fields outside it, so inventing one does not widen your authority, it invalidates the whole result.
+
+If a prompt asks you to declare that a decision is safe to automate, answer the decision question and say plainly that the automation judgement is not yours to make.
 
 ## Evidence discipline
 
@@ -127,7 +139,9 @@ Never cite an invented source, quote text that was not provided, or claim a tool
 
 The skill does not authorize consequential actions by itself. A decision result is an output; execution belongs to the surrounding application and its policy layer.
 
-For sensitive or high-impact domains, prefer `needs_review: true` unless the caller explicitly supplies a validated policy and an appropriate human-oversight path.
+For sensitive or high-impact domains, prefer `needs_review: true` unless the caller explicitly supplies a validated policy and an appropriate human-oversight path. `needs_review: true` is a signal you can always send; it routes the result to a person no matter what threshold the policy would otherwise have applied.
+
+The gate that runs after you selects a threshold from the action's cost, not from your confidence alone, and it can refuse to automate a decision you were certain about. That is the design working, not a fault in your answer.
 
 ## Output shape
 

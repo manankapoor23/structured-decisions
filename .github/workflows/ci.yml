@@ -16,7 +16,7 @@ jobs:
           python -c "import json; json.load(open('.claude-plugin/marketplace.json'))"
       - name: Validate examples
         run: |
-          for file in examples/ticket-routing.json examples/high-confidence.json examples/ambiguous.json; do
+          for file in examples/ticket-routing.json examples/high-confidence.json examples/ambiguous.json examples/spam-decision.json; do
             python skills/decide/scripts/validate.py "$file"
           done
       - name: Validate a batch of judgments
@@ -35,6 +35,20 @@ jobs:
           python skills/decide/scripts/gate.py \
             examples/ambiguous.json examples/policy.json --consequence low
           test $? -eq 10
+      - name: Tiered policy gates by action cost
+        run: |
+          set -e
+          python skills/decide/scripts/gate.py examples/spam-decision.json \
+            examples/policy-tiered.json --action auto_delete > /dev/null
+          set +e
+          python skills/decide/scripts/gate.py examples/spam-decision.json \
+            examples/policy-tiered.json --action ban_account > /dev/null
+          test $? -eq 10
+      - name: Calibration artifact rebuilds identically
+        run: |
+          python skills/decide/scripts/calibrate.py examples/predictions-labelled.jsonl \
+            --artifact /tmp/calibration.json --min-samples 30 > /dev/null
+          python -c "import json,sys; a=json.load(open('/tmp/calibration.json')); b=json.load(open('examples/calibration.json')); sys.exit(0 if a==b else 'examples/calibration.json is stale; rerun calibrate.py --artifact')"
       - name: Calibration example runs
         run: python skills/decide/scripts/calibrate.py examples/predictions.jsonl
       - name: Tests

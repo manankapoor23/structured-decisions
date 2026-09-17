@@ -1,0 +1,18 @@
+{
+  "allowed_decisions": ["spam", "refund", "ban", "review"],
+  "require_evidence": true,
+  "max_consequence": "high",
+  "consequence_thresholds": {"low": 0.70, "medium": 0.90, "high": 0.98},
+  "actions": {
+    "auto_delete": {"consequence": "low", "description": "Move a message to the spam folder."},
+    "issue_refund": {"consequence": "medium", "description": "Return money to the customer."},
+    "ban_account": {"consequence": "high", "threshold": 0.995, "description": "Permanently close an account."}
+  },
+  "class_thresholds": {"review": 0.50},
+  "calibration": {
+    "path": "calibration.json",
+    "target_accuracy": 0.85,
+    "min_samples": 30,
+    "insufficient_data": "review"
+  }
+}

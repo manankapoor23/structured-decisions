@@ -2,14 +2,71 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/manankapoor23/typed-decision/main/schemas/policy.schema.json",
   "title": "Decision Policy",
+  "description": "Thresholds are selected in a fixed order: per-action, then per-class, then calibrated, then the global fallback. A policy that resolves none of them sends the decision to a person.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["allowed_decisions", "automation_threshold", "review_below", "require_evidence"],
+  "required": ["allowed_decisions", "require_evidence"],
   "properties": {
-    "allowed_decisions": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
-    "automation_threshold": {"type": "number", "minimum": 0, "maximum": 1},
-    "review_below": {"type": "number", "minimum": 0, "maximum": 1},
-    "max_consequence": {"type": "string", "enum": ["low", "medium", "high"]},
-    "require_evidence": {"type": "boolean"}
+    "allowed_decisions": {
+      "type": "array", "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "require_evidence": {"type": "boolean"},
+    "max_consequence": {
+      "description": "Hard cap. An action costlier than this always goes to a person, whatever the confidence.",
+      "type": "string", "enum": ["low", "medium", "high"]
+    },
+    "actions": {
+      "description": "The actions a verdict may trigger, and what each one costs. Precedence level 1.",
+      "type": "object", "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "anyOf": [{"required": ["threshold"]}, {"required": ["consequence"]}],
+        "properties": {
+          "threshold": {"type": "number", "minimum": 0, "maximum": 1},
+          "consequence": {"type": "string", "enum": ["low", "medium", "high"]},
+          "description": {"type": "string"}
+        }
+      }
+    },
+    "consequence_thresholds": {
+      "description": "Confidence required at each consequence level. Must not decrease as consequence rises.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "low": {"type": "number", "minimum": 0, "maximum": 1},
+        "medium": {"type": "number", "minimum": 0, "maximum": 1},
+        "high": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "class_thresholds": {
+      "description": "Per-decision thresholds. Precedence level 2. Keys must be allowed decisions.",
+      "type": "object",
+      "additionalProperties": {"type": "number", "minimum": 0, "maximum": 1}
+    },
+    "calibration": {
+      "description": "Derive thresholds from labelled outcomes. Precedence level 3.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {"type": "string", "description": "Artifact path, relative to this policy file."},
+        "target_accuracy": {"type": "number", "minimum": 0, "maximum": 1},
+        "min_samples": {"type": "integer", "minimum": 1, "default": 30},
+        "shrinkage_weight": {"type": "number", "exclusiveMinimum": 0, "default": 30},
+        "insufficient_data": {
+          "description": "What to do when a group has fewer than min_samples outcomes.",
+          "type": "string", "enum": ["review", "shrink", "global"], "default": "review"
+        }
+      }
+    },
+    "automation_threshold": {
+      "description": "Global fallback, precedence level 4. A single number cannot express that different actions cost different amounts; prefer actions and class_thresholds. Omit it entirely to send anything unresolved to a person.",
+      "type": "number", "minimum": 0, "maximum": 1
+    },
+    "review_below": {
+      "description": "Accepted for policies written against the earlier schema, and validated, but it has no effect on any verdict. automation_threshold is the fallback the gate reads. Must not exceed it.",
+      "type": "number", "minimum": 0, "maximum": 1
+    }
   }
 }

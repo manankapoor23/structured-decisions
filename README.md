@@ -43,7 +43,7 @@ That is the whole idea. [Usage](#usage) shows the full response and how to ask s
 - **A real answer for "not enough information."** Abstention is a first-class outcome, not a hedge buried in prose.
 - **Evidence you can audit.** Each observation tagged as observed, inferred, or missing.
 - **Several judgments in one answer.** Ask every question you might need about the same input; your code picks the ones it uses.
-- **A gate you control.** Thresholds and consequence limits live in your code, where the model cannot reach them.
+- **A threshold that matches the stakes.** Per-action, per-class, or derived from measured outcomes, so filing a message and closing an account are not held to one number. The model never sees it.
 
 ## Install
 
@@ -180,45 +180,95 @@ python3 skills/decide/scripts/validate.py examples/batch-triage.json
 
 ## Apply a policy
 
-The gate is the reason this repository exists. It runs in your code, outside the model response, so a decision cannot raise its own threshold or authorize its own action.
+The gate is the reason this repository exists. It runs in your code, outside the model response, so a decision cannot raise its own threshold or authorise its own action.
 
 ```bash
 python3 skills/decide/scripts/gate.py \
   examples/high-confidence.json examples/policy.json --consequence low
 ```
 
-A policy looks like this:
+| Verdict | Exit code | When |
+| --- | --- | --- |
+| `AUTOMATION_ALLOWED` | 0 | Valid, clears the applicable threshold, within the consequence cap |
+| `HUMAN_REVIEW` | 10 | Below threshold, no threshold resolved, review requested, or too consequential |
+| `ABSTAIN` | 30 | The model declined to decide; there is nothing to act on |
+| `REJECT_RESULT` | 20 | Malformed, or a label outside the policy |
+
+Only exit code 0 means automate. The codes let a shell script branch without parsing output.
+
+### The threshold depends on what the action costs
+
+One global threshold cannot express that missing a spam message and closing someone's account cost different amounts. Thresholds attach to the action:
 
 ```json
 {
-  "allowed_decisions": ["authentication_configuration", "database", "frontend", "infrastructure", "review"],
-  "automation_threshold": 0.90,
-  "review_below": 0.90,
-  "max_consequence": "medium",
-  "require_evidence": true
+  "allowed_decisions": ["spam", "refund", "ban", "review"],
+  "require_evidence": true,
+  "consequence_thresholds": {"low": 0.70, "medium": 0.90, "high": 0.98},
+  "actions": {
+    "auto_delete":  {"consequence": "low"},
+    "issue_refund": {"consequence": "medium"},
+    "ban_account":  {"consequence": "high", "threshold": 0.995}
+  }
 }
 ```
 
-| Verdict | Exit code | When |
-| --- | --- | --- |
-| `AUTOMATION_ALLOWED` | 0 | Valid, confident, within the consequence limit |
-| `HUMAN_REVIEW` | 10 | Abstained, review requested, below threshold, or too consequential |
-| `REJECT_RESULT` | 20 | Malformed, or a label outside the policy |
-
-The exit codes let a shell script branch on the verdict without parsing output.
-
-The consequence of the action is a `--consequence` argument supplied by the caller, never a field in the decision object. If a policy sets `max_consequence` and the caller does not state the consequence, the gate returns `HUMAN_REVIEW` rather than assuming the action is safe.
-
-To gate one judgment out of a batch, name it:
+The same decision at the same confidence, gated for three actions:
 
 ```bash
-python3 skills/decide/scripts/gate.py \
-  examples/batch-triage.json examples/policy.json --judgment department --consequence low
+$ python3 skills/decide/scripts/gate.py examples/spam-decision.json examples/policy-tiered.json --action auto_delete
+AUTOMATION_ALLOWED
+$ python3 skills/decide/scripts/gate.py examples/spam-decision.json examples/policy-tiered.json --action issue_refund
+HUMAN_REVIEW
+$ python3 skills/decide/scripts/gate.py examples/spam-decision.json examples/policy-tiered.json --action ban_account
+HUMAN_REVIEW
 ```
 
-A policy describes one question's answer space, so a batch needs one policy per question. Gating the urgency judgment against the routing policy above returns `REJECT_RESULT`, because `urgent` is not one of the routing labels. That is the intended behavior: it catches a decision that was gated against the wrong policy.
+Those numbers are one worked example, not advice. What counts as high consequence, and what confidence it should demand, comes from your costs and your measured error rates.
 
-The threshold is a product decision, not a claim about model accuracy. Gate different actions at different levels according to what being wrong costs.
+### Precedence
+
+The gate takes the first threshold that applies:
+
+| Level | Source | From |
+| --- | --- | --- |
+| 1a | `action` | that action's own threshold |
+| 1b | `action_consequence` | that action's consequence, via the cost ladder |
+| 2 | `class` | `class_thresholds[<decision>]` |
+| 3 | `calibrated` | derived from labelled outcomes |
+| 4 | `global` | `automation_threshold`, the fallback |
+| 5 | `unresolved` | nothing applied, so a person decides |
+
+**Level 4 is a fallback, not the intended design.** It exists so simple policies keep working. Omit `automation_threshold` entirely and anything unresolved goes to a person, which is usually what you want.
+
+`gate.py --json` prints which level supplied the number, alongside the raw confidence, the calibrated confidence, and the consequence, so a verdict can be audited after the fact.
+
+### Thresholds from measured outcomes
+
+With a calibration artifact, level 3 derives the cutoff from what actually happened rather than from a number someone picked:
+
+```json
+{
+  "calibration": {
+    "path": "calibration.json",
+    "target_accuracy": 0.85,
+    "min_samples": 30,
+    "insufficient_data": "review"
+  }
+}
+```
+
+The threshold becomes the lowest confidence bin whose observed accuracy reached the target.
+
+**Rare classes are the trap here.** A class with six labelled outcomes at 100% accuracy is not evidence of anything, and fitting it a threshold of its own would be the worst kind of false precision. `min_samples` sets the bar, and `insufficient_data` says what happens below it: `review` refuses to automate that class, `shrink` pulls its bin accuracies toward the global rate weighted by sample count, and `global` uses the population threshold instead. The default is `review`.
+
+### What the caller controls, and the model does not
+
+The action and its consequence come from the policy and the caller's arguments. The decision object has no field for either, and the validator rejects a decision that invents one. If the caller states a consequence that contradicts the policy's, the gate routes to a person rather than picking a winner.
+
+`max_consequence` remains a hard cap: an action above it goes to a person whatever the confidence.
+
+Full precedence rules, the calibration arithmetic, and its limitations are in [`skills/decide/references/decision-policy.md`](skills/decide/references/decision-policy.md).
 
 ## Confidence is not probability
 
@@ -226,6 +276,13 @@ A model reporting `0.91` does not make the answer 91 percent likely to be correc
 
 ```bash
 python3 skills/decide/scripts/calibrate.py examples/predictions.jsonl
+```
+
+Add `--artifact` to write a file the gate can select thresholds from, grouped by class and by action:
+
+```bash
+python3 skills/decide/scripts/calibrate.py examples/predictions-labelled.jsonl \
+  --artifact examples/calibration.json --min-samples 30
 ```
 
 The repository ships a small example. Your own file needs one JSON object per line, each with a confidence and an outcome:
@@ -250,26 +307,35 @@ python3 -m unittest discover -s tests -p 'test_*.py'
 
 ## Architecture
 
+Each stage answers one question, and none of them can answer another's.
+
 ```text
 user or event
      |
      v
-model            proposes a decision and its evidence
+model              proposes a decision, evidence, and its own raw confidence
      |
      v
-validator        shape, types, and allowed labels
+validator          shape, types, allowed labels        -> REJECT_RESULT
      |
      v
-policy gate      threshold, consequence, evidence requirement
+calibration        how often was this confidence right in the past?
      |
-  +--+--+
-  |     |
-review  automation
-  |     |
-person  executor
+     v
+risk/cost policy   what does this action cost?
+     |
+     v
+threshold          action -> class -> calibrated -> global fallback
+     |
+  +--+--+--+
+  |  |  |  |
+  |  |  |  +-- ABSTAIN             the model declined; nothing to act on
+  |  |  +----- HUMAN_REVIEW        below threshold, or no threshold resolved
+  |  +-------- AUTOMATION_ALLOWED  executor may act
+  +----------- REJECT_RESULT       malformed or off-policy
 ```
 
-Keep these layers separate. Collapsing the gate into the prompt gives the model authority over its own authorization.
+The model contributes exactly one number to this, its raw confidence, and sees none of the rest. Collapsing any stage into the prompt gives the model authority over its own authorisation.
 
 ## Good fits
 
@@ -316,12 +382,14 @@ skills/decide/
     integration.md
   scripts/
     validate.py
+    thresholds.py      threshold precedence and calibration arithmetic
     gate.py
     calibrate.py
 schemas/
   decision.schema.json
   judgments.schema.json
   policy.schema.json
+  calibration.schema.json
 examples/
   ticket-routing.json
   high-confidence.json
@@ -329,11 +397,16 @@ examples/
   batch-triage.json
   policy.json
   policy-urgency.json
+  policy-tiered.json
+  spam-decision.json
+  calibration.json
   predictions.jsonl
+  predictions-labelled.jsonl
 tests/
   _load.py
   test_validator.py
   test_gate.py
+  test_thresholds.py
 ```
 
 ## Roadmap

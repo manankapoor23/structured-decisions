@@ -1,0 +1,1 @@
+{"decision":"spam","confidence":0.86,"needs_review":false,"abstained":false,"evidence":[{"kind":"observed","text":"Sent to 4,000 recipients from a domain registered two days ago."},{"kind":"observed","text":"The body matches a known bulk template."}],"reason":"Bulk send from a new domain with template reuse is the established spam pattern.","missing_information":[]}
