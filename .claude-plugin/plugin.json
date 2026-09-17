@@ -1,7 +1,7 @@
 {
   "name": "typed-decision",
   "description": "Give Claude structured decisions. Returns one label from your allowed set with explicit confidence, first-class abstention, and auditable evidence, then gates it: a validator checks the shape and a policy gate decides whether automation is allowed. An experiment in offering the interface of a typed decision model from inside Claude Code.",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "author": {
     "name": "Manan Kapoor",
     "url": "https://github.com/manankapoor23"

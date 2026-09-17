@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.6 - 2026-09-17
+
+- Renamed the marketplace from `manan-skills` to `typed-decision`, so the plugin installs as
+  `typed-decision@typed-decision` and the repository, marketplace, and plugin names all agree.
+- Anyone who added the marketplace under its old name should remove and re-add it:
+  `/plugin marketplace remove manan-skills`, then
+  `/plugin marketplace add manankapoor23/typed-decision`, then
+  `/plugin install typed-decision@typed-decision`. A marketplace rename has no migration path, since
+  the `renames` field maps plugin names rather than marketplace names.
+
 ## 0.1.5 - 2026-09-17
 
 - The README now documents copying the skill, rather than installing from this repository as a
